@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Matteo & Sara//Matrimonio//IT
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:matrimonio-matteo-sara-20270725@seiwaldm.github.io
+DTSTAMP:20261031T120000Z
+DTSTART:20270725T120000Z
+DTEND:20270725T210000Z
+SUMMARY:Matrimonio Matteo & Sara
+LOCATION:Chiesa di San Bartolomeo in Tuto\, Via G. Salvemini 2/2\, Scandicc
+ i (FI)\, Italia
+DESCRIPTION:Cerimonia ore 14:00\, poi ricevimento a Villa Mocale\, Via Coll
+ ina 62\, Montefiridolfi (FI).\n\nhttps://seiwaldm.github.io/sara-matteo/
+URL:https://seiwaldm.github.io/sara-matteo/
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Matrimonio Matteo & Sara
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+END:VCALENDAR
