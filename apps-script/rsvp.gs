@@ -18,12 +18,20 @@ const SHEET_NAME = 'RSVP';
 const HEADERS = ['Data', 'Nome', 'Cognome', 'Presenza', 'Intolleranze', 'Lingua'];
 // Optional: an address that gets an email for every RSVP. Leave empty to turn off.
 const NOTIFY_EMAIL = '';
+// Replies sent sooner than this after the page loaded are treated as bots.
+const MIN_FILL_MS = 3000;
+// At most RATE_LIMIT replies per RATE_WINDOW_S seconds, across all visitors.
+const RATE_LIMIT = 20;
+const RATE_WINDOW_S = 600;
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
 
   // Honeypot: real visitors never fill this hidden field, bots often do. Pretend success.
   if (p.website) return json({ ok: true });
+
+  // Too fast: the page sends how long it was open (ms). Bots submit instantly. Pretend success.
+  if (!(Number(p.t) >= MIN_FILL_MS)) return json({ ok: true });
 
   const nome = clean(p.nome, 100);
   const cognome = clean(p.cognome, 100);
@@ -35,6 +43,7 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
+    if (!underRateLimit()) return json({ ok: false, error: 'busy' });
     getSheet().appendRow([new Date(), nome, cognome, presenza, intolleranze, lingua].map(safe));
   } finally {
     lock.releaseLock();
@@ -65,6 +74,16 @@ function getSheet() {
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
   }
   return sheet;
+}
+
+// Counts replies in fixed time windows. Call only while holding the script lock.
+function underRateLimit() {
+  const cache = CacheService.getScriptCache();
+  const key = 'rsvp-count-' + Math.floor(Date.now() / (RATE_WINDOW_S * 1000));
+  const count = Number(cache.get(key) || 0);
+  if (count >= RATE_LIMIT) return false;
+  cache.put(key, String(count + 1), RATE_WINDOW_S);
+  return true;
 }
 
 function clean(value, max) {

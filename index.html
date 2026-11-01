@@ -36,12 +36,7 @@
     <meta name="theme-color" content="#fbf8f4" />
     <link rel="icon" type="image/png" href="assets/favicon.png" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Great+Vibes&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="assets/fonts.css" />
     <style>
       /* Amoresa: commercial font from the printed invitations; Great Vibes is the fallback. */
       @font-face {
@@ -645,6 +640,11 @@
         line-height: 1.6;
         color: var(--muted);
       }
+      .privacy {
+        font-size: 12px;
+        opacity: 0.8;
+        margin-top: 4px;
+      }
       footer {
         background: var(--ink);
         color: #f8f3ec;
@@ -1141,6 +1141,14 @@
               data-it=""
               data-de=""
             ></p>
+            <p
+              class="note privacy"
+              data-it="La tua risposta viene salvata in un foglio Google privato che vediamo solo noi due. Dopo il matrimonio la cancelleremo."
+              data-de="Deine Antwort wird in einer privaten Google-Tabelle gespeichert, die nur wir beide sehen. Nach der Hochzeit löschen wir sie."
+            >
+              La tua risposta viene salvata in un foglio Google privato che
+              vediamo solo noi due. Dopo il matrimonio la cancelleremo.
+            </p>
           </form>
         </div>
       </section>
@@ -1335,6 +1343,8 @@
           }
           const data = new FormData(form);
           data.append("lingua", lang);
+          // Time since page load (ms); the script ignores replies sent suspiciously fast.
+          data.append("t", Math.round(performance.now()));
           const yes = data.get("presenza") === "si";
           btn.disabled = true;
           setMsg("Invio in corso…", "Wird gesendet…");
