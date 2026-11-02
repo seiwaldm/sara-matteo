@@ -15,7 +15,12 @@
  */
 
 const SHEET_NAME = 'RSVP';
-const HEADERS = ['Data', 'Nome', 'Cognome', 'Presenza', 'Intolleranze', 'Lingua'];
+// If you change the columns, rename or delete the old RSVP tab: headers are only written to a new tab.
+const HEADERS = [
+  'Data', 'Nome', 'Cognome', 'Presenza', 'Adulti', 'Bambini', 'Ospitalità', 'Messaggio', 'Lingua',
+];
+// Highest number of adults or children accepted in one reply.
+const MAX_GUESTS = 10;
 // Optional: an address that gets an email for every RSVP. Leave empty to turn off.
 const NOTIFY_EMAIL = '';
 // Replies sent sooner than this after the page loaded are treated as bots.
@@ -36,24 +41,42 @@ function doPost(e) {
   const nome = clean(p.nome, 100);
   const cognome = clean(p.cognome, 100);
   const presenza = p.presenza === 'si' ? 'Sì' : p.presenza === 'no' ? 'No' : '';
-  const intolleranze = clean(p.intolleranze, 1000);
+  const viene = presenza === 'Sì';
+  // Guest counts and accommodation are only asked when attending; otherwise counts are 0.
+  const adulti = viene ? count(p.adulti) : 0;
+  const bambini = viene && p.bambini ? count(p.bambini) : 0; // optional, empty counts as 0
+  const ospitalita = !viene ? '' : p.ospitalita === 'si' ? 'Sì' : p.ospitalita === 'no' ? 'No' : '';
+  const messaggio = clean(p.messaggio, 1000);
   const lingua = p.lingua === 'de' ? 'DE' : 'IT';
-  if (!nome || !cognome || !presenza) return json({ ok: false, error: 'invalid' });
+  if (!nome || !cognome || !presenza || adulti === null || bambini === null || (viene && adulti < 1)) {
+    return json({ ok: false, error: 'invalid' });
+  }
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     if (!underRateLimit()) return json({ ok: false, error: 'busy' });
-    getSheet().appendRow([new Date(), nome, cognome, presenza, intolleranze, lingua].map(safe));
+    getSheet().appendRow(
+      [new Date(), nome, cognome, presenza, adulti, bambini, ospitalita, messaggio, lingua].map(safe)
+    );
   } finally {
     lock.releaseLock();
   }
 
   if (NOTIFY_EMAIL) {
+    const summary = viene ? `${adulti} adulti, ${bambini} bambini` : 'non partecipa';
     MailApp.sendEmail(
       NOTIFY_EMAIL,
-      `RSVP: ${nome} ${cognome} (${presenza})`,
-      `${nome} ${cognome}\nPresenza: ${presenza}\nIntolleranze: ${intolleranze || '-'}\nLingua: ${lingua}`
+      `RSVP: ${nome} ${cognome} (${summary})`,
+      [
+        `${nome} ${cognome}`,
+        `Presenza: ${presenza}`,
+        `Adulti: ${adulti}`,
+        `Bambini: ${bambini}`,
+        `Ospitalità: ${ospitalita || '-'}`,
+        `Messaggio: ${messaggio || '-'}`,
+        `Lingua: ${lingua}`,
+      ].join('\n')
     );
   }
   return json({ ok: true });
@@ -84,6 +107,14 @@ function underRateLimit() {
   if (count >= RATE_LIMIT) return false;
   cache.put(key, String(count + 1), RATE_WINDOW_S);
   return true;
+}
+
+// Whole number from 0 to MAX_GUESTS, or null if the value is anything else.
+function count(value) {
+  const s = String(value || '').trim();
+  if (!/^\d+$/.test(s)) return null;
+  const n = Number(s);
+  return n <= MAX_GUESTS ? n : null;
 }
 
 function clean(value, max) {

@@ -581,6 +581,9 @@
         height: 1px;
         overflow: hidden;
       }
+      [hidden] {
+        display: none !important;
+      }
       .submit:disabled {
         opacity: 0.6;
         cursor: wait;
@@ -596,12 +599,13 @@
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        column-gap: 15px;
       }
       .field {
         margin-bottom: 17px;
       }
-      label {
+      label,
+      legend {
         display: block;
         margin-bottom: 7px;
         font:
@@ -623,6 +627,44 @@
       }
       textarea {
         min-height: 95px;
+      }
+      fieldset {
+        border: 0;
+        padding: 0;
+        margin: 0 0 17px;
+        min-width: 0;
+      }
+      legend {
+        padding: 0;
+      }
+      .choices {
+        display: flex;
+        gap: 32px;
+      }
+      .choices label {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+        font: 17px var(--text);
+        letter-spacing: 0;
+        text-transform: none;
+        color: #37312a;
+        cursor: pointer;
+      }
+      .choices input {
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        margin: 0;
+        accent-color: var(--ink);
+      }
+      .hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 14px;
+        letter-spacing: 0;
+        text-transform: none;
       }
       .submit {
         border: 0;
@@ -1050,23 +1092,30 @@
           <form class="rsvp" id="form">
             <div class="grid">
               <div class="field">
-                <label for="nome" data-it="Nome" data-de="Vorname">Nome</label
+                <label for="nome" data-it="Nome *" data-de="Vorname *"
+                  >Nome *</label
                 ><input
                   id="nome"
                   name="nome"
                   autocomplete="given-name"
                   maxlength="100"
+                  placeholder="Inserisci il tuo nome"
+                  data-it-ph="Inserisci il tuo nome"
+                  data-de-ph="Vorname eingeben"
                   required
                 />
               </div>
               <div class="field">
-                <label for="cognome" data-it="Cognome" data-de="Nachname"
-                  >Cognome</label
+                <label for="cognome" data-it="Cognome *" data-de="Nachname *"
+                  >Cognome *</label
                 ><input
                   id="cognome"
                   name="cognome"
                   autocomplete="family-name"
                   maxlength="100"
+                  placeholder="Inserisci il tuo cognome"
+                  data-it-ph="Inserisci il tuo cognome"
+                  data-de-ph="Nachname eingeben"
                   required
                 />
               </div>
@@ -1074,9 +1123,9 @@
             <div class="field">
               <label
                 for="presenza"
-                data-it="Parteciperai?"
-                data-de="Nimmst du teil?"
-                >Parteciperai?</label
+                data-it="Parteciperai? *"
+                data-de="Nimmst du teil? *"
+                >Parteciperai? *</label
               ><select id="presenza" name="presenza" required>
                 <option
                   value=""
@@ -1101,17 +1150,101 @@
                 </option>
               </select>
             </div>
+            <div class="grid" data-if-attending hidden>
+              <div class="field">
+                <label
+                  for="adulti"
+                  data-it="Quanti siete? (adulti) *"
+                  data-de="Wie viele Erwachsene kommen? *"
+                  >Quanti siete? (adulti) *</label
+                ><select id="adulti" name="adulti" required disabled>
+                  <option
+                    value=""
+                    data-it="Seleziona un numero"
+                    data-de="Bitte auswählen"
+                  >
+                    Seleziona un numero
+                  </option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                </select>
+              </div>
+              <div class="field">
+                <label
+                  for="bambini"
+                  data-it="Quanti bambini portate?"
+                  data-de="Wie viele Kinder bringt ihr mit?"
+                  >Quanti bambini portate?</label
+                ><select id="bambini" name="bambini" disabled>
+                  <option
+                    value=""
+                    data-it="Seleziona un numero"
+                    data-de="Bitte auswählen"
+                  >
+                    Seleziona un numero
+                  </option>
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                </select>
+              </div>
+            </div>
+            <fieldset class="field" data-if-attending hidden>
+              <legend
+                data-it="Hai bisogno di ospitalità?"
+                data-de="Benötigt ihr eine Unterkunft?"
+              >
+                Hai bisogno di ospitalità?
+              </legend>
+              <div class="choices">
+                <label
+                  ><input type="radio" name="ospitalita" value="si" disabled /><span
+                    data-it="Sì"
+                    data-de="Ja"
+                    >Sì</span
+                  ></label
+                >
+                <label
+                  ><input type="radio" name="ospitalita" value="no" disabled /><span
+                    data-it="No"
+                    data-de="Nein"
+                    >No</span
+                  ></label
+                >
+              </div>
+            </fieldset>
             <div class="field">
-              <label
-                for="intolleranze"
-                data-it="Intolleranze alimentari (facoltativo)"
-                data-de="Lebensmittelunverträglichkeiten (optional)"
-                >Intolleranze alimentari (facoltativo)</label
+              <label for="messaggio"
+                ><span
+                  data-it="Hai qualcosa da comunicarci?"
+                  data-de="Möchtest du uns noch etwas mitteilen?"
+                  >Hai qualcosa da comunicarci?</span
+                ><span
+                  class="hint"
+                  data-it="(Intolleranze o allergie alimentari, esigenze particolari, ecc.)"
+                  data-de="(Unverträglichkeiten oder Lebensmittelallergien, besondere Bedürfnisse, usw.)"
+                  >(Intolleranze o allergie alimentari, esigenze particolari,
+                  ecc.)</span
+                ></label
               ><textarea
-                id="intolleranze"
-                name="intolleranze"
+                id="messaggio"
+                name="messaggio"
                 maxlength="1000"
-                placeholder="Indica eventuali intolleranze…"
+                placeholder="Scrivi qui il tuo messaggio…"
+                data-it-ph="Scrivi qui il tuo messaggio…"
+                data-de-ph="Deine Nachricht …"
               ></textarea>
             </div>
             <div class="hp" aria-hidden="true">
@@ -1267,10 +1400,9 @@
             : "Matteo & Sara · 25. Juli 2027";
         document.getElementById("lang").textContent =
           next === "it" ? "DE / IT" : "IT / DE";
-        document.getElementById("intolleranze").placeholder =
-          next === "it"
-            ? "Indica eventuali intolleranze…"
-            : "Bitte gib eventuelle Unverträglichkeiten an…";
+        document.querySelectorAll("[data-it-ph]").forEach((el) => {
+          el.placeholder = el.dataset[next + "Ph"];
+        });
       }
       document
         .getElementById("lang")
@@ -1310,7 +1442,19 @@
       (() => {
         const form = document.getElementById("form"),
           msg = document.getElementById("message"),
-          btn = form.querySelector(".submit");
+          btn = form.querySelector(".submit"),
+          presenza = document.getElementById("presenza"),
+          attendingOnly = form.querySelectorAll("[data-if-attending]");
+        // Guest counts and accommodation only apply when attending. Disabled fields are skipped by validation and not sent.
+        function toggleGuests() {
+          const yes = presenza.value === "si";
+          attendingOnly.forEach((box) => {
+            box.hidden = !yes;
+            box.querySelectorAll("input, select").forEach((el) => (el.disabled = !yes));
+          });
+        }
+        presenza.addEventListener("change", toggleGuests);
+        toggleGuests(); // the browser may restore a previous answer on reload
         // Keep both languages on the element so the language switch also translates status messages.
         function setMsg(it, de) {
           msg.dataset.it = it;
@@ -1341,6 +1485,7 @@
             const res = await r.json();
             if (!res.ok) throw new Error(res.error);
             form.reset();
+            toggleGuests();
             if (yes)
               setMsg(
                 "Grazie! Abbiamo ricevuto la tua risposta. Non vediamo l’ora di festeggiare con te!",
