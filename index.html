@@ -1210,18 +1210,20 @@
               </legend>
               <div class="choices">
                 <label
-                  ><input type="radio" name="ospitalita" value="si" disabled /><span
-                    data-it="Sì"
-                    data-de="Ja"
-                    >Sì</span
-                  ></label
+                  ><input
+                    type="radio"
+                    name="ospitalita"
+                    value="si"
+                    disabled
+                  /><span data-it="Sì" data-de="Ja">Sì</span></label
                 >
                 <label
-                  ><input type="radio" name="ospitalita" value="no" disabled /><span
-                    data-it="No"
-                    data-de="Nein"
-                    >No</span
-                  ></label
+                  ><input
+                    type="radio"
+                    name="ospitalita"
+                    value="no"
+                    disabled
+                  /><span data-it="No" data-de="Nein">No</span></label
                 >
               </div>
             </fieldset>
@@ -1331,7 +1333,7 @@
         Per informazioni, contattateci
       </p>
       <p>
-        Matteo · <a href="tel:+43660448277">+43 660 448 277</a><br />Sara ·
+        Matteo · <a href="tel:+436604418277">+43 660 4481 277</a><br />Sara ·
         <a href="tel:+393802663743">+39 380 266 3743</a>
       </p>
       <div
@@ -1450,7 +1452,9 @@
           const yes = presenza.value === "si";
           attendingOnly.forEach((box) => {
             box.hidden = !yes;
-            box.querySelectorAll("input, select").forEach((el) => (el.disabled = !yes));
+            box
+              .querySelectorAll("input, select")
+              .forEach((el) => (el.disabled = !yes));
           });
         }
         presenza.addEventListener("change", toggleGuests);
