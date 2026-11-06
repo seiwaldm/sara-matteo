@@ -52,16 +52,20 @@ function doPost(e) {
     return json({ ok: false, error: 'invalid' });
   }
 
+  // The lock only guards the quick rate-limit counter. The sheet write happens after releasing it,
+  // so a slow or stuck Sheets call can't block every other reply.
   const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
+  if (!lock.tryLock(10000)) return json({ ok: false, error: 'busy' });
+  let allowed;
   try {
-    if (!underRateLimit()) return json({ ok: false, error: 'busy' });
-    getSheet().appendRow(
-      [new Date(), nome, cognome, presenza, adulti, bambini, ospitalita, messaggio, lingua].map(safe)
-    );
+    allowed = underRateLimit();
   } finally {
     lock.releaseLock();
   }
+  if (!allowed) return json({ ok: false, error: 'busy' });
+  getSheet().appendRow(
+    [new Date(), nome, cognome, presenza, adulti, bambini, ospitalita, messaggio, lingua].map(safe)
+  );
 
   if (NOTIFY_EMAIL) {
     const summary = viene ? `${adulti} adulti, ${bambini} bambini` : 'non partecipa';
